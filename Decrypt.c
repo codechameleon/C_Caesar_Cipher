@@ -35,7 +35,38 @@ void readFreq(float given[]) {
  * frequency data in array found.
  */
 void calcFreq(float found[]) {
+	int i;
+	int count[26] = {0};
+	float total = 0;
+	char ch;
+	float freq;
+	FILE *ifp;
 	
+	/* Open file */
+	ifp = fopen("out.txt", "r");
+	if (ifp == NULL) {
+		printf("File could not be opened\n");
+	}
+
+	/* Read file and calculate letter frequency */
+	while (fscanf(ifp,"%c",&ch) == 1) {
+		
+		/* keep total of characters found */
+		ch = tolower(ch);
+		if (ch >= 'a' && ch <= 'z' && !isspace(ch)) {
+			count[ch-'a']++;
+			total++;
+		} 
+	}
+	fclose(ifp);
+	
+	/* Puts the frequencies in the found array */
+	for (i=0; i < 26; i++) {
+		
+		if (count[i] != 0) {
+			found[i] = (float)count[i]/total;
+		}
+	}
 }
 
 /*
@@ -62,4 +93,10 @@ void decrypt(int key) {
  */
 void rotate() {
 	
+}
+
+int main() {
+	float found[26];
+	
+	calcFreq(found);
 }
