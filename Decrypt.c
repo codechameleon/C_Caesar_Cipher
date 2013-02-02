@@ -39,7 +39,6 @@ void calcFreq(float found[]) {
 	int count[26] = {0};
 	float total = 0;
 	char ch;
-	float freq;
 	FILE *ifp;
 	
 	/* Open file */
@@ -70,6 +69,27 @@ void calcFreq(float found[]) {
 }
 
 /*
+ * Helper for findKey() 
+ */
+void rotate(float found[]) {
+	
+	int i;
+	float temp;
+	
+	/* Gets the first element */
+	temp = found[0];
+	
+	/* Shifts the array contents by one */
+	for (i=0; i < 25; i++) {
+		found[i] = found[i+1];
+	}
+	
+	/* Sets the last array element to what the first was */
+	found[25] = temp;
+	
+}
+
+/*
  * Compare the data in array found with the frequency data
  * given, looking for a key that will give you the best match. 
  * To do this, try each of the 26 rotations, and remember which gives
@@ -78,6 +98,53 @@ void calcFreq(float found[]) {
  */
 int findKey(float given[], float found[]) {
 	
+	int i, j, k, key;
+	float tempGiven, tempFound, diff, small, sum;
+	
+	/* Holds the sums for each index */
+	float sums[26] = {0};
+	
+	
+	for (i=0; i < 26; i++) {
+		
+		/* Calculates the frequency difference between arrays */
+		for (j=0; j < 26; j++) {
+			tempGiven = given[j];
+			tempFound = found[j];
+			//printf("tempFound is %f and found[i] is %f at index %d\n",tempFound,found[j],j);
+			tempGiven = tempGiven * tempGiven;
+			tempFound = tempFound * tempFound;
+			//printf("TempGiven is %f and TempFound is %f\n",tempGiven,tempFound);
+			/* Gets the difference */
+			if (tempGiven >= tempFound) {
+				diff = tempGiven - tempFound;
+			} else {
+				diff = tempFound - tempGiven;
+			}
+			sum += diff;
+			//printf("Sum is %f\n",sum);
+		}
+		
+		/* Add frequences difference to that key and rotate */
+		sums[i] = sum;
+		sum = 0;
+		rotate(found);
+	}
+	
+	small = sums[0];
+	key = 0;
+	
+	/* Find the smallest difference */
+	for (k=1; k < 26; k++) {
+		
+		/* If smaller */
+		if (small > sums[k]) {
+			small = sums[k];
+			key = k;
+		}
+	}
+	
+	return key;
 }
 
 /*
@@ -88,15 +155,20 @@ void decrypt(int key) {
 	
 }
 
-/*
- * Helper for findKey() 
- */
-void rotate() {
-	
-}
+
 
 int main() {
-	float found[26];
 	
+	float given[26] = {0};
+	float found[26] = {0};
+	
+	readFreq(given);
 	calcFreq(found);
+	int answer;
+	
+	answer = findKey(given,found);
+	printf("Answer is %d\n", answer);
+	
+	
+	
 }
