@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 
 /*
  * Load given array with the letter frequencies for English
@@ -42,7 +43,7 @@ void calcFreq(float found[]) {
 	FILE *ifp;
 	
 	/* Open file */
-	ifp = fopen("out.txt", "r");
+	ifp = fopen("data.txt", "r");
 	if (ifp == NULL) {
 		printf("File could not be opened\n");
 	}
@@ -111,10 +112,10 @@ int findKey(float given[], float found[]) {
 		for (j=0; j < 26; j++) {
 			tempGiven = given[j];
 			tempFound = found[j];
-			//printf("tempFound is %f and found[i] is %f at index %d\n",tempFound,found[j],j);
+			
 			tempGiven = tempGiven * tempGiven;
 			tempFound = tempFound * tempFound;
-			//printf("TempGiven is %f and TempFound is %f\n",tempGiven,tempFound);
+
 			/* Gets the difference */
 			if (tempGiven >= tempFound) {
 				diff = tempGiven - tempFound;
@@ -122,7 +123,6 @@ int findKey(float given[], float found[]) {
 				diff = tempFound - tempGiven;
 			}
 			sum += diff;
-			//printf("Sum is %f\n",sum);
 		}
 		
 		/* Add frequences difference to that key and rotate */
@@ -153,22 +153,46 @@ int findKey(float given[], float found[]) {
  */
 void decrypt(int key) {
 	
+	char ch;
+	FILE *ifp, *fout;
+	
+	/* Open file */
+	ifp = fopen("data.txt", "r");
+	fout = fopen("result.txt", "w");
+	if (ifp == NULL) {
+		printf("File could not be opened\n");
+	}
+
+	/* Read file and calculate letter frequency */
+	while (fscanf(ifp,"%c",&ch) == 1) {
+	
+		/* If a space then just print a space */
+		if (isspace(ch)) {
+			fprintf(fout, " ");
+			
+		/* If a alphabet character print character from key */
+		} else if (isalpha(ch)) {
+			fprintf(fout, "%c", ch-key);
+			
+		/* Print symbol */
+		} else {
+			fprintf(fout, "%c", ch);
+		}
+		
+	}
+	fclose(ifp);
+	fclose(fout);
 }
-
-
 
 int main() {
 	
-	float given[26] = {0};
-	float found[26] = {0};
+	int key;
+	float given[26], found[26];
 	
 	readFreq(given);
 	calcFreq(found);
-	int answer;
-	
-	answer = findKey(given,found);
-	printf("Answer is %d\n", answer);
-	
-	
+	key = findKey(given,found);
+	decrypt(key);
+	return 0;
 	
 }
